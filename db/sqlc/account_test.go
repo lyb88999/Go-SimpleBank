@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
-	"github.com/lyb8889999/simplebank/util"
+	"github.com/lyb88999/Go-SimpleBank/util"
 	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
