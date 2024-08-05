@@ -13,7 +13,8 @@ FOR NO KEY UPDATE ;
 
 -- name: ListAccount :many
 SELECT * FROM  accounts
-GROUP BY id LIMIT $1 OFFSET $2;
+WHERE owner = $1
+GROUP BY id LIMIT $2 OFFSET $3;
 
 -- name: UpdateAccount :one
 UPDATE accounts
