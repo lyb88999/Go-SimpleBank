@@ -23,7 +23,7 @@ jobs:
 
       - name: Build and push image
         env:
-          ACR_REGISTRY: steps.acr-login.outputs.acr-registry
+          ACR_REGISTRY: registry.cn-hangzhou.aliyuncs.com/udemy
           ACR_REPOSITORY: simplebank
           IMAGE_TAG: ${{ github.sha }}
         run: |
