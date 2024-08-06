@@ -40,7 +40,7 @@ jobs:
           curl --location "https://api.cloud.hashicorp.com/secrets/2023-06-13/organizations/9737139a-ce76-441c-89e9-8a12bc1cc3ce/projects/1ac5ceef-b411-48e1-9705-5d304054be9a/apps/simple-bank/open" \
           --request GET \
           --header "Authorization: Bearer $HCP_API_TOKEN" | \
-          jq -r '.[] | "\(.name)=\(.version.value)"' > app.env
+          jq -r '.[][] | select(.name and .version.value) | "\(.name)=\(.version.value)"'
 
       - name: Display app.env file
         run: cat app.env
