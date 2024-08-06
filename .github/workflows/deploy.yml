@@ -21,6 +21,30 @@ jobs:
           access-key-id: ${{secrets.ACR_ACCESS_KEY_ID}}
           access-key-secret: ${{secrets.ACR_ACCESS_KEY_SECRET}}
 
+
+      - name: Load secrets FROM HCP and save to app.env
+        env:
+          HCP_CLIENT_ID: ${{secrets.HCP_CLIENT_ID}}
+          HCP_CLIENT_SECRET: ${{secrets.HCP_CLIENT_SECRET}}
+        run: |
+          # Get HCP_API_TOKEN using HCP_CLIENT_ID and HCP_CLIENT_SECRET
+          HCP_API_TOKEN=$(curl -X POST "https://auth.hashicorp.com/oauth/token" \
+          -H "Content-Type: application/json" \
+          -d '{
+              "audience": "https://api.hashicorp.com",
+              "grant_type": "client_credentials",
+              "client_id": "'$HCP_CLIENT_ID'",
+              "client_secret": "'$HCP_CLIENT_SECRET'"
+            }' | jq -r .access_token)
+          # Fetch secrets from HCP and save to app.env
+          curl --location "https://api.cloud.hashicorp.com/secrets/2023-06-13/organizations/9737139a-ce76-441c-89e9-8a12bc1cc3ce/projects/1ac5ceef-b411-48e1-9705-5d304054be9a/apps/simple-bank/open" \
+          --request GET \
+          --header "Authorization: Bearer $HCP_API_TOKEN" | \
+          jq -r '.[] | "\(.name)=\(.version.value)"' > app.env
+
+      - name: Display app.env file
+        run: cat app.env
+
       - name: Build and push image
         env:
           ACR_REGISTRY: registry.cn-hangzhou.aliyuncs.com/udemy
