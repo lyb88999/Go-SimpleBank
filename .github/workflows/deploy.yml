@@ -28,19 +28,18 @@ jobs:
           HCP_CLIENT_SECRET: ${{secrets.HCP_CLIENT_SECRET}}
         run: |
           # Get HCP_API_TOKEN using HCP_CLIENT_ID and HCP_CLIENT_SECRET
-          HCP_API_TOKEN=$(curl -X POST "https://auth.hashicorp.com/oauth/token" \
-          -H "Content-Type: application/json" \
-          -d '{
-              "audience": "https://api.hashicorp.com",
-              "grant_type": "client_credentials",
-              "client_id": "'$HCP_CLIENT_ID'",
-              "client_secret": "'$HCP_CLIENT_SECRET'"
-            }' | jq -r .access_token)
+          HCP_API_TOKEN=$(curl --location "https://auth.idp.hashicorp.com/oauth2/token" \
+          --header "Content-Type: application/x-www-form-urlencoded" \
+          --data-urlencode "client_id=$HCP_CLIENT_ID" \
+          --data-urlencode "client_secret=$HCP_CLIENT_SECRET" \
+          --data-urlencode "grant_type=client_credentials" \
+          --data-urlencode "audience=https://api.hashicorp.cloud" | jq -r .access_token)
+          
           # Fetch secrets from HCP and save to app.env
           curl --location "https://api.cloud.hashicorp.com/secrets/2023-06-13/organizations/9737139a-ce76-441c-89e9-8a12bc1cc3ce/projects/1ac5ceef-b411-48e1-9705-5d304054be9a/apps/simple-bank/open" \
           --request GET \
           --header "Authorization: Bearer $HCP_API_TOKEN" | \
-          jq -r '.[][] | select(.name and .version.value) | "\(.name)=\(.version.value)"'
+          jq -r '.[][] | select(.name and .version.value) | "\(.name)=\(.version.value)"' > app.env
 
       - name: Display app.env file
         run: cat app.env
