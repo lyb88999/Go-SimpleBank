@@ -7,12 +7,18 @@ on:
 
 jobs:
 
-  build:
-    name: Build image
+  deploy:
+    name: Build image and push to ACR
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v2
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.28.9' # default is latest stable
+        id: install
 
       - name: Login to ACR
         uses: aliyun/acr-login@v1
@@ -50,5 +56,10 @@ jobs:
           ACR_REPOSITORY: simplebank
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ACR_REGISTRY/$ACR_REPOSITORY:$IMAGE_TAG .
-          docker push $ACR_REGISTRY/$ACR_REPOSITORY:$IMAGE_TAG
+          docker build -t $ACR_REGISTRY/$ACR_REPOSITORY:$IMAGE_TAG -t latest.
+          docker push $ACR_REGISTRY/$ACR_REPOSITORY
+
+      - name: Deploy image to AKS
+        run: |
+          kubectl apply -f ack/deployment.yaml
+          kubectl apply -f ack/service.yaml
