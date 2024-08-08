@@ -69,5 +69,5 @@ jobs:
 
       - name: Deploy image to AKS
         run: |
-          kubectl apply -f ack/deployment.yaml
-          kubectl apply -f ack/service.yaml
+          kubectl apply -f ack/deployment.yml
+          kubectl apply -f ack/service.yml
