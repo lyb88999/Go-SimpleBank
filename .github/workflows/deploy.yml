@@ -56,8 +56,9 @@ jobs:
           ACR_REPOSITORY: simplebank
           IMAGE_TAG: ${{ github.sha }}
         run: |
+
           docker build -t $ACR_REGISTRY/$ACR_REPOSITORY:$IMAGE_TAG -t $ACR_REGISTRY/$ACR_REPOSITORY:latest .
-          docker push $ACR_REGISTRY/$ACR_REPOSITORY
+
 
       - name: Update kube config
         run: |
