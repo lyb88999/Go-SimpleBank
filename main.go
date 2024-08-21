@@ -48,7 +48,8 @@ func main() {
 	runDBMigration(config.MigrationURL, config.DBSource)
 	store := db.NewStore(connPool)
 	redisOpt := asynq.RedisClientOpt{
-		Addr: config.RedisAddress,
+		Addr:     config.RedisAddress,
+		Password: config.RedisPassword,
 	}
 	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
 	go runTaskProcessor(config, redisOpt, store)
