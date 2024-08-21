@@ -37,7 +37,7 @@ sqlc:
 	sqlc generate
 
 test:
-	go test -v -cover ./...
+	go test -v -short -cover ./...
 
 server:
 	go run main.go
@@ -51,4 +51,23 @@ db_docs:
 db_schema:
 	dbml2sql --postgres -o doc/schema.sql doc/db.dbml
 
-.PHONY: postgres createdb dropdb migrateup migrateupR migrateup1 migratedownR1 migratedown migratedownR migratedown1 migratedownR1 sqlc server mock db_docs db_schema
+new_migration:
+	migrate create -ext sql -dir db/migration -seq $(name)
+
+proto:
+	rm -rf pb/*.go
+	rm -rf doc/swagger/*.swagger.json
+	protoc --proto_path=proto --go_out=pb --go_opt=paths=source_relative \
+        --go-grpc_out=pb --go-grpc_opt=paths=source_relative \
+        --grpc-gateway_out=pb --grpc-gateway_opt=paths=source_relative \
+        --openapiv2_out=doc/swagger --openapiv2_opt=allow_merge=true,merge_file_name=simple_bank \
+        proto/*.proto
+	statik -src=./doc/swagger -dest=./doc
+
+evans:
+	evans --host localhost --port 9090 -r repl
+
+redis:
+	docker run --name redis -p 6379:6379 -d redis:7-alpine3.20
+
+.PHONY: postgres createdb dropdb migrateup migrateupR migrateup1 migratedownR1 migratedown migratedownR migratedown1 migratedownR1 sqlc server mock db_docs db_schema proto redis new_migration

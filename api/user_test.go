@@ -10,7 +10,7 @@ import (
 	"github.com/lyb88999/Go-SimpleBank/util"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -77,8 +77,11 @@ func TestGetUserAPI(t *testing.T) {
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					CreateUser(gomock.Any(), gomock.Any()).
-					Times(1)
-				//Return(db.User{}, db.ErrUniqueViolation)
+					Times(1).
+					Return(db.User{}, db.ErrUniqueViolation)
+			},
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusForbidden, recorder.Code)
 			},
 		},
 	}
@@ -100,7 +103,7 @@ func randUser(t *testing.T) (user db.User, password string) {
 }
 
 func requireBodyMatchUser(t *testing.T, body *bytes.Buffer, user db.User) {
-	data, err := ioutil.ReadAll(body)
+	data, err := io.ReadAll(body)
 	require.NoError(t, err)
 	var gotUser db.User
 	err = json.Unmarshal(data, &gotUser)
