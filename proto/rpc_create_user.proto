@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package pb;
+
+import "user.proto";
+option go_package = "github.com/lyb88999/Go-SimpleBank/pb";
+
+message CreateUserRequest{
+  string username = 1;
+  string password = 2;
+  string full_name = 3;
+  string email = 4;
+}
+
+message CreateUserResponse{
+  User user = 1;
+}
