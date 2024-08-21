@@ -49,7 +49,7 @@ func main() {
 	store := db.NewStore(connPool)
 	redisOpt := asynq.RedisClientOpt{
 		Addr:     config.RedisAddress,
-		Password: "Liyubo0426@@",
+		Password: config.RedisPassword,
 	}
 	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
 	go runTaskProcessor(config, redisOpt, store)
